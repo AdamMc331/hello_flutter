@@ -8,7 +8,6 @@ const _containerPadding = EdgeInsets.all(8.0);
 const _iconPadding = EdgeInsets.all(16.0);
 const _height = 100.0;
 const _radius = _height / 2.0;
-const _textStyle = TextStyle(fontSize: 24.0);
 const _iconSize = 60.0;
 
 /// A custom [Category] widget.
@@ -17,7 +16,7 @@ const _iconSize = 60.0;
 /// a colored [InkWell] animation.
 class Category extends StatelessWidget {
   final String name;
-  final Color color;
+  final ColorSwatch color;
   final IconData iconLocation;
   final List<Unit> units;
 
@@ -56,6 +55,7 @@ class Category extends StatelessWidget {
             name: name,
             units: units,
           ),
+          resizeToAvoidBottomPadding: false,
         );
       }
     ));
@@ -71,8 +71,8 @@ class Category extends StatelessWidget {
       child: Container(
         height: _height,
         child: InkWell(
-          splashColor: color,
-          highlightColor: color,
+          splashColor: color['splash'],
+          highlightColor: color['highlight'],
           borderRadius: BorderRadius.circular(_radius),
           onTap: () => _navigateToConverter(context),
           child: Padding(
@@ -90,7 +90,7 @@ class Category extends StatelessWidget {
                 Center(
                   child: Text(
                     name,
-                    style: _textStyle,
+                    style: Theme.of(context).textTheme.headline,
                   ),
                 ),
               ],
