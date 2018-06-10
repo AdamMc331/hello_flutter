@@ -9,18 +9,31 @@ import 'unit.dart';
 ///
 /// While it is named ConverterRoute, a more apt name would be ConverterScreen,
 /// because it is responsible for the UI at the route's destination.
-class ConverterRoute extends StatelessWidget {
+class ConverterRoute extends StatefulWidget {
   /// Units for this [Category].
   final List<Unit> units;
-  final String categoryName;
-  final Color categoryColor;
+  final String name;
+  final Color color;
 
   /// This [ConverterRoute] requires the name, color, and units to not be null.
   const ConverterRoute({
     @required this.units,
-    @required this.categoryName,
-    @required this.categoryColor,
-  }) : assert(units != null), assert(categoryName != null), assert(categoryColor != null);
+    @required this.name,
+    @required this.color,
+  }) : assert(units != null), assert(name != null), assert(color != null);
+
+  @override
+  State<StatefulWidget> createState() => _ConverterRouteState(
+    units: units,
+    categoryColor: color
+  );
+}
+
+class _ConverterRouteState extends State<ConverterRoute> {
+  List<Unit> units;
+  Color categoryColor;
+
+  _ConverterRouteState({ this.units, this.categoryColor }) : assert(units != null), assert(categoryColor != null);
 
   @override
   Widget build(BuildContext context) {
