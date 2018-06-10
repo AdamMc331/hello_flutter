@@ -1,6 +1,8 @@
 // To keep your imports tidy, follow the ordering guidelines at
 // https://www.dartlang.org/guides/language/effective-dart/style#ordering
 import 'package:flutter/material.dart';
+import 'converter_route.dart';
+import 'unit.dart';
 
 const _containerPadding = EdgeInsets.all(8.0);
 const _iconPadding = EdgeInsets.all(16.0);
@@ -8,7 +10,6 @@ const _height = 100.0;
 const _radius = _height / 2.0;
 const _textStyle = TextStyle(fontSize: 24.0);
 const _iconSize = 60.0;
-const _iconWidth = 70.0;
 
 /// A custom [Category] widget.
 ///
@@ -18,6 +19,7 @@ class Category extends StatelessWidget {
   final String name;
   final Color color;
   final IconData iconLocation;
+  final List<Unit> units;
 
   /// Creates a [Category].
   ///
@@ -28,10 +30,36 @@ class Category extends StatelessWidget {
     @required this.name,
     @required this.color,
     @required this.iconLocation,
+    @required this.units,
   })  : assert(name != null),
         assert(color != null),
         assert(iconLocation != null),
+        assert(units != null),
         super(key: key);
+
+  /// Navigates to the [ConverterRoute].
+  void _navigateToConverter(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute<Null>(
+      builder: (BuildContext context) {
+        return Scaffold(
+          appBar: AppBar(
+            elevation: 1.0,
+            title: Text(
+              name,
+              style: Theme.of(context).textTheme.display1,
+            ),
+            centerTitle: true,
+            backgroundColor: color,
+          ),
+          body: ConverterRoute(
+            categoryColor: color,
+            categoryName: name,
+            units: units,
+          ),
+        );
+      }
+    ));
+  }
 
   /// Builds a custom widget that shows [Category] information.
   ///
@@ -46,9 +74,7 @@ class Category extends StatelessWidget {
           splashColor: color,
           highlightColor: color,
           borderRadius: BorderRadius.circular(_radius),
-          onTap: () {
-            print('I was tapped!');
-          },
+          onTap: () => _navigateToConverter(context),
           child: Padding(
             padding: _containerPadding,
             child: Row(
