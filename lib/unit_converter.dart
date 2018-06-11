@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
-
+import 'category.dart';
 import 'unit.dart';
 
 const _padding = EdgeInsets.all(16.0);
@@ -11,26 +11,19 @@ const _padding = EdgeInsets.all(16.0);
 ///
 /// While it is named ConverterRoute, a more apt name would be ConverterScreen,
 /// because it is responsible for the UI at the route's destination.
-class ConverterRoute extends StatefulWidget {
-  /// Units for this [Category].
-  final List<Unit> units;
-  final String name;
-  final Color color;
+class UnitConverter extends StatefulWidget {
+  final Category category;
 
-  /// This [ConverterRoute] requires the name, color, and units to not be null.
-  const ConverterRoute({
-    @required this.units,
-    @required this.name,
-    @required this.color,
-  })  : assert(units != null),
-        assert(name != null),
-        assert(color != null);
+  /// This [UnitConverter] requires the name, color, and units to not be null.
+  const UnitConverter({
+    @required this.category,
+  }) : assert(category != null);
 
   @override
   State<StatefulWidget> createState() => _ConverterRouteState();
 }
 
-class _ConverterRouteState extends State<ConverterRoute> {
+class _ConverterRouteState extends State<UnitConverter> {
   Unit _fromValue;
   Unit _toValue;
   double _inputValue;
@@ -47,7 +40,7 @@ class _ConverterRouteState extends State<ConverterRoute> {
 
   void _createDropdownMenuItems() {
     var newItems = <DropdownMenuItem>[];
-    for (var unit in widget.units) {
+    for (var unit in widget.category.units) {
       newItems.add(DropdownMenuItem(
         value: unit.name,
         child: Container(
@@ -66,8 +59,8 @@ class _ConverterRouteState extends State<ConverterRoute> {
 
   void _setDefaults() {
     setState(() {
-      _fromValue = widget.units[0];
-      _toValue = widget.units[1];
+      _fromValue = widget.category.units[0];
+      _toValue = widget.category.units[1];
     });
   }
 
@@ -113,7 +106,7 @@ class _ConverterRouteState extends State<ConverterRoute> {
   }
 
   Unit _getUnit(String unitName) {
-    return widget.units.firstWhere(
+    return widget.category.units.firstWhere(
       (Unit unit) {
         return unit.name == unitName;
       },
@@ -156,8 +149,8 @@ class _ConverterRouteState extends State<ConverterRoute> {
       child: Theme(
         // Sets the color of the [DropdownMenuItem]
         data: Theme.of(context).copyWith(
-          canvasColor: Colors.grey[50],
-        ),
+              canvasColor: Colors.grey[50],
+            ),
         child: DropdownButtonHideUnderline(
           child: ButtonTheme(
             alignedDropdown: true,
@@ -186,7 +179,8 @@ class _ConverterRouteState extends State<ConverterRoute> {
             style: Theme.of(context).textTheme.display1,
             decoration: InputDecoration(
               labelStyle: Theme.of(context).textTheme.display1,
-              errorText: _showValidationError ? "Invalid number entered." : null,
+              errorText:
+                  _showValidationError ? "Invalid number entered." : null,
               labelText: "Input",
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(0.0),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'category.dart';
+import 'category_tile.dart';
 import 'unit.dart';
-
-final _backgroundColor = Colors.green[100];
+import 'backdrop.dart';
+import 'unit_converter.dart';
 
 /// Category Route (screen).
 ///
@@ -19,6 +20,9 @@ class CategoryRoute extends StatefulWidget {
 }
 
 class _CategoryRouteState extends State<CategoryRoute> {
+  Category _defaultCategory;
+  Category _currentCategory;
+
   static const _categoryNames = <String>[
     'Length',
     'Area',
@@ -80,11 +84,22 @@ class _CategoryRouteState extends State<CategoryRoute> {
         units: _retrieveUnitList(_categoryNames[i]),
       ));
     }
+
+    _defaultCategory = categories.first;
+  }
+
+  void _onCategoryTap(Category category) {
+    setState(() {
+      _currentCategory = category;
+    });
   }
 
   Widget _buildCategoryWidget() {
     return ListView.builder(
-      itemBuilder: (BuildContext context, int index) => categories[index],
+      itemBuilder: (BuildContext context, int index) => CategoryTile(
+            category: categories[index],
+            onTap: _onCategoryTap,
+          ),
       itemCount: categories.length,
     );
   }
@@ -102,28 +117,25 @@ class _CategoryRouteState extends State<CategoryRoute> {
 
   @override
   Widget build(BuildContext context) {
-    final listView = Container(
-      color: _backgroundColor,
-      padding: EdgeInsets.all(8.0),
+    final listView = Padding(
+      padding: EdgeInsets.only(
+        left: 8.0,
+        right: 8.0,
+        bottom: 48.0,
+      ),
       child: _buildCategoryWidget(),
     );
 
-    final appBar = AppBar(
-      elevation: 0.0,
-      title: Text(
-        "Unit Converter",
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 30.0,
-        ),
+    var thisCategory =
+        _currentCategory == null ? _defaultCategory : _currentCategory;
+    return Backdrop(
+      currentCategory: thisCategory,
+      frontPanel: UnitConverter(
+        category: thisCategory,
       ),
-      centerTitle: true,
-      backgroundColor: _backgroundColor,
-    );
-
-    return Scaffold(
-      appBar: appBar,
-      body: listView,
+      backPanel: listView,
+      frontTitle: Text("Unit Converter"),
+      backTitle: Text("Select a Category"),
     );
   }
 }
