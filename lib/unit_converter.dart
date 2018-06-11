@@ -30,6 +30,7 @@ class _ConverterRouteState extends State<UnitConverter> {
   String _convertedValue = "";
   List<DropdownMenuItem> _unitMenuItems;
   bool _showValidationError = false;
+  final _inputKey = GlobalKey(debugLabel: 'inputText');
 
   @override
   void initState() {
@@ -176,6 +177,7 @@ class _ConverterRouteState extends State<UnitConverter> {
           // This is the widget that accepts text input. In this case, it accepts
           // numbers and calls the onChanged property on update.
           TextField(
+            key: _inputKey,
             style: Theme.of(context).textTheme.display1,
             decoration: InputDecoration(
               labelStyle: Theme.of(context).textTheme.display1,
@@ -226,8 +228,7 @@ class _ConverterRouteState extends State<UnitConverter> {
       ),
     );
 
-    final converter = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    final converter = ListView(
       children: <Widget>[
         input,
         arrows,
@@ -237,7 +238,20 @@ class _ConverterRouteState extends State<UnitConverter> {
 
     return Padding(
       padding: _padding,
-      child: converter,
+      child: OrientationBuilder(
+        builder: (BuildContext context, Orientation orientation) {
+          if (orientation == Orientation.portrait) {
+            return converter;
+          } else {
+            return Center(
+              child: Container(
+                width: 450.0,
+                child: converter,
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 }

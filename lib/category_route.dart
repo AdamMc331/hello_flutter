@@ -94,14 +94,31 @@ class _CategoryRouteState extends State<CategoryRoute> {
     });
   }
 
-  Widget _buildCategoryWidget() {
-    return ListView.builder(
-      itemBuilder: (BuildContext context, int index) => CategoryTile(
-            category: categories[index],
+  /// Makes the correct number of rows for the list view, based on whether the
+  /// device is portrait or landscape.
+  ///
+  /// For portrait, we use a [ListView]. For landscape, we use a [GridView].
+  Widget _buildCategoryWidget(Orientation orientation) {
+    if (orientation == Orientation.portrait) {
+      return ListView.builder(
+        itemBuilder: (BuildContext context, int index) => CategoryTile(
+          category: categories[index],
+          onTap: _onCategoryTap,
+        ),
+        itemCount: categories.length,
+      );
+    } else {
+      return GridView.count(
+        crossAxisCount: 2,
+        childAspectRatio: 3.0,
+        children: categories.map((Category category) {
+          return CategoryTile(
+            category: category,
             onTap: _onCategoryTap,
-          ),
-      itemCount: categories.length,
-    );
+          );
+        }).toList(),
+      );
+    }
   }
 
   /// Returns a list of mock [Unit]s.
@@ -123,7 +140,7 @@ class _CategoryRouteState extends State<CategoryRoute> {
         right: 8.0,
         bottom: 48.0,
       ),
-      child: _buildCategoryWidget(),
+      child: _buildCategoryWidget(MediaQuery.of(context).orientation),
     );
 
     var thisCategory =
