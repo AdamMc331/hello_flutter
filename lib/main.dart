@@ -20,10 +20,7 @@ class UnitConverterApp extends StatelessWidget {
         primaryColor: Colors.grey[500],
         textSelectionHandleColor: Colors.green[500],
       ),
-      home: Scaffold(
-        backgroundColor: Colors.green[100],
-        body: CategoryRoute(),
-      ),
+      home: CategoryRoute(),
     );
   }
 }
