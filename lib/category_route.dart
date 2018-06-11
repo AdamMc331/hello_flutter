@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:convert';
 import 'category.dart';
 import 'category_tile.dart';
 import 'unit.dart';
@@ -22,17 +24,6 @@ class CategoryRoute extends StatefulWidget {
 class _CategoryRouteState extends State<CategoryRoute> {
   Category _defaultCategory;
   Category _currentCategory;
-
-  static const _categoryNames = <String>[
-    'Length',
-    'Area',
-    'Volume',
-    'Mass',
-    'Time',
-    'Digital Storage',
-    'Energy',
-    'Currency',
-  ];
 
   static const _baseColors = <ColorSwatch>[
     ColorSwatch(0xFF6AB7A8, {
@@ -70,22 +61,49 @@ class _CategoryRouteState extends State<CategoryRoute> {
     }),
   ];
 
-  final categories = <Category>[];
+  final _categories = <Category>[];
 
   @override
-  initState() {
-    super.initState();
+  Future<void> didChangeDependencies() async {
+    super.didChangeDependencies();
+    // We have static unit conversions located in our
+    // assets/data/regular_units.json
+    if (_categories.isEmpty) {
+      await _retrieveLocalCategories();
+    }
+  }
 
-    for (var i = 0; i < _categoryNames.length; i++) {
-      categories.add(Category(
-        name: _categoryNames[i],
-        color: _baseColors[i],
-        iconLocation: Icons.cake,
-        units: _retrieveUnitList(_categoryNames[i]),
-      ));
+  /// Retrieves a list of [Categories] and their [Unit]s
+  Future<void> _retrieveLocalCategories() async {
+    // Consider omitting the types for local variables. For more details on Effective
+    // Dart Usage, see https://www.dartlang.org/guides/language/effective-dart/usage
+    final json = DefaultAssetBundle
+        .of(context)
+        .loadString('assets/data/regular_units.json');
+    final data = JsonDecoder().convert(await json);
+    if (data is! Map) {
+      throw ('Data retrieved from API is not a Map');
     }
 
-    _defaultCategory = categories.first;
+    var categoryIndex = 0;
+    data.keys.forEach((key) {
+      final List<Unit> units =
+          data[key].map<Unit>((dynamic data) => Unit.fromJson(data)).toList();
+
+      var category = Category(
+        name: key,
+        units: units,
+        color: _baseColors[categoryIndex],
+        iconLocation: Icons.cake,
+      );
+      setState(() {
+        if (categoryIndex == 0) {
+          _defaultCategory = category;
+        }
+        _categories.add(category);
+      });
+      categoryIndex += 1;
+    });
   }
 
   void _onCategoryTap(Category category) {
@@ -102,16 +120,16 @@ class _CategoryRouteState extends State<CategoryRoute> {
     if (orientation == Orientation.portrait) {
       return ListView.builder(
         itemBuilder: (BuildContext context, int index) => CategoryTile(
-          category: categories[index],
-          onTap: _onCategoryTap,
-        ),
-        itemCount: categories.length,
+              category: _categories[index],
+              onTap: _onCategoryTap,
+            ),
+        itemCount: _categories.length,
       );
     } else {
       return GridView.count(
         crossAxisCount: 2,
         childAspectRatio: 3.0,
-        children: categories.map((Category category) {
+        children: _categories.map((Category category) {
           return CategoryTile(
             category: category,
             onTap: _onCategoryTap,
@@ -119,17 +137,6 @@ class _CategoryRouteState extends State<CategoryRoute> {
         }).toList(),
       );
     }
-  }
-
-  /// Returns a list of mock [Unit]s.
-  List<Unit> _retrieveUnitList(String categoryName) {
-    return List.generate(10, (int i) {
-      i += 1;
-      return Unit(
-        name: '$categoryName Unit $i',
-        conversion: i.toDouble(),
-      );
-    });
   }
 
   @override
