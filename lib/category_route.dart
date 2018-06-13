@@ -163,10 +163,16 @@ class _CategoryRouteState extends State<CategoryRoute> {
   Widget _buildCategoryWidget(Orientation orientation) {
     if (orientation == Orientation.portrait) {
       return ListView.builder(
-        itemBuilder: (BuildContext context, int index) => CategoryTile(
-              category: _categories[index],
-              onTap: _onCategoryTap,
-            ),
+        itemBuilder: (BuildContext context, int index) {
+          var _category = _categories[index];
+          return CategoryTile(
+            category: _category,
+            onTap:
+                _category.name == apiCategory["name"] && _category.units.isEmpty
+                    ? null
+                    : _onCategoryTap,
+          );
+        },
         itemCount: _categories.length,
       );
     } else {

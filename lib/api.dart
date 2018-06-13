@@ -19,7 +19,6 @@ const apiCategory = {
 ///   GET /currency: get a list of currencies
 ///   GET /currency/convert: get conversion from one currency amount to another
 class Api {
-
   final _httpClient = HttpClient();
   final _url = "flutter.udacity.com";
 
@@ -42,23 +41,22 @@ class Api {
   /// Given two units, converts from one to another.
   ///
   /// Returns a double, which is the converted amount. Returns null on error.
-  Future<double> convert(String category, String amount, String fromUnit, String toUnit) async {
-    final uri = Uri.https(_url, "/$category/convert", {
-      "amount": amount,
-      "from": fromUnit,
-      "to": toUnit
-    });
+  Future<double> convert(
+      String category, String amount, String fromUnit, String toUnit) async {
+    final uri = Uri.https(_url, '/$category/convert',
+        {'amount': amount, 'from': fromUnit, 'to': toUnit});
 
-    final httpRequest = await _httpClient.getUrl(uri);
-    final httpResponse = await httpRequest.close();
+    final jsonResponse = await _getJson(uri);
 
-    if (httpResponse.statusCode != HttpStatus.OK) {
+    if (jsonResponse == null || jsonResponse['status'] == null) {
+      print('Error retrieving conversion.');
+      return null;
+    } else if (jsonResponse['status'] == 'error') {
+      print(jsonResponse['message']);
       return null;
     }
 
-    final responseBody = await httpResponse.transform(utf8.decoder).join();
-    final jsonResponse = json.decode(responseBody);
-    return jsonResponse["conversion"].toDouble();
+    return jsonResponse['conversion'].toDouble();
   }
 
   /// Fetches and decodes a JSON object represented as a Dart [Map].
