@@ -1,6 +1,6 @@
 # hello_fluter
 
-A new Flutter project.
+This is a simple Unit Converter application made following the Udacity course on developing native applications with Flutter: https://classroom.udacity.com/courses/ud905
 
 ## Getting Started
 
