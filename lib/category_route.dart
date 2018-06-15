@@ -92,7 +92,9 @@ class _CategoryRouteState extends State<CategoryRoute> {
     final json = DefaultAssetBundle
         .of(context)
         .loadString('assets/data/regular_units.json');
+
     final data = JsonDecoder().convert(await json);
+
     if (data is! Map) {
       throw ('Data retrieved from API is not a Map');
     }
@@ -108,12 +110,15 @@ class _CategoryRouteState extends State<CategoryRoute> {
         color: _baseColors[categoryIndex],
         iconLocation: _icons[categoryIndex],
       );
+
       setState(() {
         if (categoryIndex == 0) {
           _defaultCategory = category;
         }
+
         _categories.add(category);
       });
+
       categoryIndex += 1;
     });
   }

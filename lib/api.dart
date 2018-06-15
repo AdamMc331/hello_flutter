@@ -31,10 +31,12 @@ class Api {
   Future<List> getUnits(String category) async {
     final uri = Uri.https(_url, '/$category');
     final jsonResponse = await _getJson(uri);
+
     if (jsonResponse == null || jsonResponse['units'] == null) {
       print('Error retrieving units.');
       return null;
     }
+
     return jsonResponse['units'];
   }
 
@@ -66,12 +68,15 @@ class Api {
     try {
       final httpRequest = await _httpClient.getUrl(uri);
       final httpResponse = await httpRequest.close();
+
       if (httpResponse.statusCode != HttpStatus.OK) {
         return null;
       }
+
       // The response is sent as a Stream of bytes that we need to convert to a
       // `String`.
       final responseBody = await httpResponse.transform(utf8.decoder).join();
+
       // Finally, the string is parsed into a JSON object.
       return json.decode(responseBody);
     } on Exception catch (e) {
