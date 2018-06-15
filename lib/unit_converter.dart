@@ -8,15 +8,9 @@ import 'dart:async';
 const _padding = EdgeInsets.all(16.0);
 
 /// Converter screen where users can input amounts to convert.
-///
-/// Currently, it just displays a list of mock units.
-///
-/// While it is named ConverterRoute, a more apt name would be ConverterScreen,
-/// because it is responsible for the UI at the route's destination.
 class UnitConverter extends StatefulWidget {
   final Category category;
 
-  /// This [UnitConverter] requires the name, color, and units to not be null.
   const UnitConverter({
     @required this.category,
   }) : assert(category != null);
@@ -42,16 +36,19 @@ class _ConverterRouteState extends State<UnitConverter> {
     _setDefaults();
   }
 
+  /// Whenever configuration updates, we need to rest dropdown if we've
+  /// changed categories.
   @override
   void didUpdateWidget(UnitConverter old) {
     super.didUpdateWidget(old);
-    // We update our [DropdownMenuItem] units when we switch [Categories].
+
     if (old.category != widget.category) {
       _createDropdownMenuItems();
       _setDefaults();
     }
   }
 
+  /// Builds the list of dropdown units for the current category.
   void _createDropdownMenuItems() {
     var newItems = <DropdownMenuItem>[];
     for (var unit in widget.category.units) {
@@ -71,6 +68,7 @@ class _ConverterRouteState extends State<UnitConverter> {
     });
   }
 
+  /// Sets a default from/to value with the units we have.
   void _setDefaults() {
     setState(() {
       _fromValue = widget.category.units[0];
@@ -94,6 +92,8 @@ class _ConverterRouteState extends State<UnitConverter> {
     return outputNum;
   }
 
+  /// Updates the conversion value. This is called anytime the user selects a
+  /// different from or to unit.
   Future<void> _updateConversion() async {
     // Our API has a handy convert function, so we can use that for
     // the Currency [Category]
@@ -119,6 +119,8 @@ class _ConverterRouteState extends State<UnitConverter> {
     }
   }
 
+  /// Validates the input value based on input, throwing an error if we get
+  /// anything that isn't a double.
   void _updateInputValue(String input) {
     setState(() {
       if (input == null || input.isEmpty) {
@@ -137,6 +139,7 @@ class _ConverterRouteState extends State<UnitConverter> {
     });
   }
 
+  /// Retrieves an actual [Unit] instance given a string name.
   Unit _getUnit(String unitName) {
     return widget.category.units.firstWhere(
       (Unit unit) {
@@ -146,6 +149,8 @@ class _ConverterRouteState extends State<UnitConverter> {
     );
   }
 
+  /// Anytime the user changes the from value, we need to update the conversion
+  /// if necessary.
   void _updateFromConversion(dynamic unitName) {
     setState(() {
       _fromValue = _getUnit(unitName);
@@ -156,6 +161,8 @@ class _ConverterRouteState extends State<UnitConverter> {
     }
   }
 
+  /// Anytime the user changes the to value, we need to update the conversion
+  /// if necessary.
   void _updateToConversion(dynamic unitName) {
     setState(() {
       _toValue = _getUnit(unitName);
@@ -166,6 +173,9 @@ class _ConverterRouteState extends State<UnitConverter> {
     }
   }
 
+  /// Builds a drop down for the conversion units. It takes in a currentValue to
+  /// set as the selected one, and an [onChanged] function to call when the user
+  /// selects something new in the drop down.
   Widget _createDropdown(String currentValue, ValueChanged<dynamic> onChanged) {
     return Container(
       margin: EdgeInsets.only(top: 16.0),
@@ -198,41 +208,41 @@ class _ConverterRouteState extends State<UnitConverter> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (widget.category.units == null ||
-        (widget.category.name == apiCategory['name'] && _showErrorUI)) {
-      return SingleChildScrollView(
-        child: Container(
-          margin: _padding,
-          padding: _padding,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.0),
-            color: widget.category.color['error'],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.error_outline,
-                size: 180.0,
+  /// Builds an error UI to display whenever we have an API error.
+  Widget _buildErrorUI(BuildContext context) {
+    return SingleChildScrollView(
+      child: Container(
+        margin: _padding,
+        padding: _padding,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16.0),
+          color: widget.category.color['error'],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 180.0,
+              color: Colors.white,
+            ),
+            Text(
+              "Oh no! We can't connect right now!",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headline.copyWith(
                 color: Colors.white,
               ),
-              Text(
-                "Oh no! We can't connect right now!",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headline.copyWith(
-                      color: Colors.white,
-                    ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
-    }
+      ),
+    );
+  }
 
-    final input = Padding(
+  /// Builds the UI widget for the input of a conversion.
+  Widget _buildInputUI(BuildContext context) {
+    return Padding(
       padding: _padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -245,7 +255,7 @@ class _ConverterRouteState extends State<UnitConverter> {
             decoration: InputDecoration(
               labelStyle: Theme.of(context).textTheme.display1,
               errorText:
-                  _showValidationError ? "Invalid number entered." : null,
+              _showValidationError ? "Invalid number entered." : null,
               labelText: "Input",
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(0.0),
@@ -259,16 +269,11 @@ class _ConverterRouteState extends State<UnitConverter> {
         ],
       ),
     );
+  }
 
-    final arrows = RotatedBox(
-      quarterTurns: 1,
-      child: Icon(
-        Icons.compare_arrows,
-        size: 40.0,
-      ),
-    );
-
-    final output = Padding(
+  /// Builds the UI Widget to display the output of a conversion.
+  Widget _buildOutputUI(BuildContext context) {
+    return Padding(
       padding: _padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -290,6 +295,26 @@ class _ConverterRouteState extends State<UnitConverter> {
         ],
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.category.units == null ||
+        (widget.category.name == apiCategory['name'] && _showErrorUI)) {
+      return _buildErrorUI(context);
+    }
+
+    final input = _buildInputUI(context);
+
+    final arrows = RotatedBox(
+      quarterTurns: 1,
+      child: Icon(
+        Icons.compare_arrows,
+        size: 40.0,
+      ),
+    );
+
+    final output = _buildOutputUI(context);
 
     final converter = ListView(
       children: <Widget>[
@@ -299,6 +324,8 @@ class _ConverterRouteState extends State<UnitConverter> {
       ],
     );
 
+    // If we're in portrait, use the converter we built. Otherwise, let's center
+    // all of the elements.
     return Padding(
       padding: _padding,
       child: OrientationBuilder(
